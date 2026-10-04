@@ -31,6 +31,7 @@ app.add_middleware(
 
 # REST routers
 app.include_router(projects.router)
+app.include_router(project_extras.router)  # members, invites, canvas save and load
 app.include_router(snapshots.router)
 app.include_router(chat.router)
 

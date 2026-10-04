@@ -57,7 +57,8 @@ PREFERRED = ("gpt-oss", "llama", "qwen", "gemma", "deepseek", "nemotron", "mistr
 # Models that are a poor fit (reasoning-only, image, audio, safety filters, and so on).
 AVOID = (
     "thinking", "reason", "-r1", "image", "vision", "embed", "audio", "tts",
-    "whisper", "guard", "moderation", "safeguard", "lyria", "veo", "ocr",
+    "whisper", "guard", "moderation", "safeguard", "safety", "shield", "classif",
+    "lyria", "veo", "ocr",
 )
 
 # Words that mean the user wants a database diagram (used by mock mode when no type is chosen).
@@ -550,7 +551,10 @@ def _parse_design(content: str, model: str, finish_reason: str | None) -> dict |
 
 def _parse_text(content: str, model: str, finish_reason: str | None) -> str | None:
     text = content.strip()
-    return text or None
+    # Too short to be an answer, or the output of a safety classifier ("User Safety: safe").
+    if len(text) < 20 or re.match(r"^\s*(user\s*)?safety\s*:", text, re.IGNORECASE):
+        return None
+    return text
 
 
 # ---------------------------------------------------------------------------
@@ -753,7 +757,7 @@ async def send_chat_message(
     if data is None:
         # A model answered in plain text. Show it, with no design.
         for content in failed_contents:
-            if content.strip() and not _looks_like_json(content):
+            if len(content.strip()) >= 80 and not _looks_like_json(content):
                 return ChatResponse(
                     task_id=str(uuid.uuid4()),
                     status="completed",
