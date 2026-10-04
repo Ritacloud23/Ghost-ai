@@ -37,7 +37,6 @@ An AI-assisted system design workspace: generate architecture and ER diagrams fr
 </div>
 
 
-   -system-in-plain-english-watch-it-become-a-clean-editable-architecture-or-database-diagram  
 ---
 
 ## Why Ghost AI
