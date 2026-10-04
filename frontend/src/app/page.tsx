@@ -1,17 +1,19 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { Project } from "@/lib/types";
 
 export default function HomePage() {
   const { user, isLoaded, isSignedIn } = useUser();
+  const { getToken } = useAuth();
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [newName, setNewName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -19,34 +21,42 @@ export default function HomePage() {
     }
   }, [isLoaded, isSignedIn, router]);
 
-  useEffect(() => {
-    if (isSignedIn) {
-      loadProjects();
-    }
-  }, [isSignedIn]);
-
-  const loadProjects = async () => {
+  const loadProjects = useCallback(async () => {
     try {
-      const token = await window.Clerk?.session?.getToken();
-      if (!token) return;
+      setError(null);
+      const token = await getToken();
+      if (!token) {
+        setError("Could not get a session token. Try signing out and in again.");
+        return;
+      }
       const data = await api.listProjects(token);
       setProjects(data as Project[]);
     } catch (err) {
-      console.error("Failed to load projects:", err);
+      setError(err instanceof Error ? err.message : "Failed to load projects");
     }
-  };
+  }, [getToken]);
+
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      loadProjects();
+    }
+  }, [isLoaded, isSignedIn, loadProjects]);
 
   const createProject = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
     setLoading(true);
     try {
-      const token = await window.Clerk?.session?.getToken();
-      if (!token) return;
+      setError(null);
+      const token = await getToken();
+      if (!token) {
+        setError("Could not get a session token. Try signing out and in again.");
+        return;
+      }
       const project = await api.createProject(newName.trim(), token);
       router.push(`/project/${(project as Project).id}`);
     } catch (err) {
-      console.error("Failed to create project:", err);
+      setError(err instanceof Error ? err.message : "Failed to create project");
     } finally {
       setLoading(false);
     }
@@ -65,9 +75,23 @@ export default function HomePage() {
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Ghost AI</h1>
-          <p className="text-gray-500">Welcome back, {user?.firstName || user?.emailAddresses[0]?.emailAddress}</p>
+          <p className="text-gray-500">
+            Welcome back, {user?.firstName || user?.emailAddresses[0]?.emailAddress}
+          </p>
         </div>
       </div>
+
+      {error && (
+        <div className="mb-6 flex items-center justify-between rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <span>{error}</span>
+          <button
+            onClick={loadProjects}
+            className="ml-4 font-medium underline hover:text-red-900"
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       <form onSubmit={createProject} className="mb-8 flex gap-3">
         <input
@@ -88,7 +112,9 @@ export default function HomePage() {
 
       <div className="space-y-3">
         {projects.length === 0 ? (
-          <p className="text-center text-gray-400">No projects yet. Create your first one above.</p>
+          <p className="text-center text-gray-400">
+            No projects yet. Create your first one above.
+          </p>
         ) : (
           projects.map((project) => (
             <button

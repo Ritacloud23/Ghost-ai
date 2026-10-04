@@ -1,13 +1,15 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 from pydantic import BaseModel
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.dependencies import get_current_user
-from app.models.user import User
 from app.models.project import Project
 from app.models.snapshot import Snapshot
+from app.models.user import User
 
 router = APIRouter(prefix="/api/snapshots", tags=["snapshots"])
 
@@ -21,7 +23,7 @@ class SnapshotResponse(BaseModel):
     id: str
     project_id: str
     blob_url: str
-    created_at: str
+    created_at: datetime
 
     class Config:
         from_attributes = True
