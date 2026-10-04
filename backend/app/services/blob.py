@@ -1,17 +1,15 @@
-import httpx
-
-from app.config import settings
+import uuid
+from datetime import datetime
+from pathlib import Path
 
 
 async def upload_snapshot(filename: str, content: bytes) -> str:
-    """Upload a snapshot to Vercel Blob and return the URL."""
-    # TODO: Use vercel-blob SDK or direct API call
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            f"https://blob.vercel.com/{filename}",
-            headers={"Authorization": f"Bearer {settings.vercel_blob_token}"},
-            content=content,
-        )
-        response.raise_for_status()
-        data = response.json()
-        return data["url"]
+    """Store a snapshot locally as a fallback when no blob provider is configured."""
+    base_dir = Path("uploads") / "snapshots" / datetime.now().strftime("%Y/%m/%d")
+    base_dir.mkdir(parents=True, exist_ok=True)
+
+    file_name = f"{uuid.uuid4()}-{filename}"
+    file_path = base_dir / file_name
+    file_path.write_bytes(content)
+
+    return f"file://{file_path.resolve()}"

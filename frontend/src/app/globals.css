@@ -6,3 +6,114 @@ body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
+
+@keyframes ghost-pop {
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes ghost-fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ===== Ghost AI theme: add this block at the very bottom of globals.css ===== */
+
+:root {
+  --ghost-dot: #cbd5e1;
+  --ghost-card: #ffffff;
+}
+
+html.dark {
+  color-scheme: dark;
+  --ghost-dot: #334155;
+  --ghost-card: #111827;
+}
+
+html.dark body {
+  background-color: #0b1120;
+  color: #e2e8f0;
+}
+
+/* Surfaces */
+.dark .bg-white { background-color: #111827; }
+.dark .bg-white\/95 { background-color: rgba(17, 24, 39, 0.95); }
+.dark .bg-white\/90 { background-color: rgba(17, 24, 39, 0.9); }
+.dark .bg-white\/80 { background-color: rgba(17, 24, 39, 0.8); }
+.dark .bg-slate-50,
+.dark .bg-gray-50 { background-color: #0b1120; }
+.dark .bg-slate-100,
+.dark .bg-gray-100 { background-color: #1e293b; }
+.dark .bg-slate-200 { background-color: #334155; }
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-slate-100:hover,
+.dark .hover\:bg-gray-50:hover,
+.dark .hover\:bg-gray-100:hover { background-color: #1e293b; }
+.dark .hover\:bg-slate-200:hover { background-color: #334155; }
+
+/* Text */
+.dark .text-slate-900,
+.dark .text-gray-900 { color: #f1f5f9; }
+.dark .text-slate-800,
+.dark .text-gray-800 { color: #e2e8f0; }
+.dark .text-slate-700,
+.dark .text-gray-700 { color: #cbd5e1; }
+.dark .text-slate-600,
+.dark .text-gray-600 { color: #a8b3c4; }
+.dark .text-slate-500,
+.dark .text-gray-500 { color: #94a3b8; }
+.dark .text-slate-400,
+.dark .text-gray-400 { color: #7b8aa0; }
+.dark .placeholder\:text-gray-400::placeholder { color: #64748b; }
+.dark .hover\:text-slate-800:hover { color: #f1f5f9; }
+
+/* Borders */
+.dark .border-slate-100,
+.dark .border-gray-100 { border-color: #1f2937; }
+.dark .border-slate-200,
+.dark .border-gray-200 { border-color: #334155; }
+.dark .border-slate-300,
+.dark .border-gray-300 { border-color: #475569; }
+.dark .border-red-200 { border-color: rgba(239, 68, 68, 0.4); }
+.dark .hover\:border-indigo-300:hover { border-color: #6366f1; }
+
+/* Colored tints */
+.dark .bg-indigo-50 { background-color: rgba(99, 102, 241, 0.16); }
+.dark .bg-indigo-100 { background-color: rgba(99, 102, 241, 0.28); }
+.dark .hover\:bg-indigo-50:hover { background-color: rgba(99, 102, 241, 0.16); }
+.dark .text-indigo-600 { color: #a5b4fc; }
+.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.16); }
+.dark .bg-blue-100 { background-color: rgba(59, 130, 246, 0.22); }
+.dark .text-blue-700 { color: #93c5fd; }
+.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.12); }
+.dark .hover\:bg-red-50:hover { background-color: rgba(239, 68, 68, 0.12); }
+.dark .hover\:bg-red-100:hover { background-color: rgba(239, 68, 68, 0.2); }
+.dark .text-red-700 { color: #fca5a5; }
+.dark .text-red-600 { color: #f87171; }
+.dark .hover\:text-red-600:hover { color: #f87171; }
+.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.22); }
+.dark .text-amber-700 { color: #fcd34d; }
+
+/* Form fields */
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #0f172a;
+  color: #f1f5f9;
+}
+.dark .bg-transparent { background-color: transparent; }
+.dark option {
+  background-color: #0f172a;
+  color: #f1f5f9;
+}
+
+/* Arrow labels on the canvas */
+.ghost-edge-label-bg { fill: #ffffff; stroke: #e2e8f0; }
+.ghost-edge-label-bg-selected { stroke: #93c5fd; }
+.ghost-edge-label-text { fill: #475569; }
+.ghost-edge-delete-bg { fill: #ffffff; }
+.dark .ghost-edge-label-bg { fill: #1e293b; stroke: #475569; }
+.dark .ghost-edge-label-bg-selected { stroke: #3b82f6; }
+.dark .ghost-edge-label-text { fill: #cbd5e1; }
+.dark .ghost-edge-delete-bg { fill: #1e293b; }

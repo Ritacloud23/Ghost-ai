@@ -1,4 +1,28 @@
-export type ShapeType = "database" | "service" | "queue" | "client" | "gateway" | "cache";
+export type ShapeType =
+  | "client"
+  | "user"
+  | "cdn"
+  | "loadbalancer"
+  | "gateway"
+  | "service"
+  | "function"
+  | "auth"
+  | "database"
+  | "cache"
+  | "storage"
+  | "search"
+  | "queue"
+  | "monitoring"
+  | "external"
+  | "entity";
+
+/** One column of a database table (an "entity" shape). */
+export interface ShapeColumn {
+  name: string;
+  type: string;
+  /** "pk" = primary key, "fk" = foreign key. */
+  key?: "pk" | "fk";
+}
 
 export interface Shape {
   id: string;
@@ -6,12 +30,23 @@ export interface Shape {
   x: number;
   y: number;
   label: string;
+  /** Technology name shown under the title, for example "PostgreSQL". */
+  tech?: string;
+  /** One short line shown on the card. */
+  description?: string;
+  /** Columns, only used when type is "entity". */
+  columns?: ShapeColumn[];
+  /** Custom width and height, set when the user resizes the card. */
+  w?: number;
+  h?: number;
 }
 
 export interface Edge {
   id: string;
   from: string;
   to: string;
+  /** Short word shown on the arrow, for example "calls" or "1:N". */
+  label?: string;
 }
 
 export interface Cursor {
