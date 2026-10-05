@@ -75,6 +75,7 @@ export default function ProjectPage() {
     loadedRef.current = false;
     setSaveStatus("loading");
     loadDesign([], []); // clear whatever the previous project left behind
+    useCanvasStore.getState().clearHistory();
 
     (async () => {
       try {
@@ -83,6 +84,8 @@ export default function ProjectPage() {
         const canvas = await api.getCanvas(projectId, token);
         if (cancelled) return;
         loadDesign(canvas.shapes ?? [], canvas.edges ?? []);
+        // The loaded canvas is where Undo starts, so Undo can never empty it.
+        useCanvasStore.getState().clearHistory();
         loadedRef.current = true;
         setSavedAt(canvas.updated_at ? new Date(canvas.updated_at) : null);
         setSaveStatus("saved");
@@ -368,6 +371,7 @@ export default function ProjectPage() {
             <Canvas
               projectId={projectId}
               userId={user!.id}
+              projectName={projectName}
               onConnect={handleConnect}
               wsSend={handleWSSend}
             />

@@ -49,9 +49,9 @@ function TableIcon({ color }: { color: string }) {
   );
 }
 
-/** A database table as a compact sage card: icon, bold name, column count, key columns. */
+/** A database table as a compact card: icon, bold name, column count, key columns. */
 function EntityCard({ shape, isSelected }: { shape: ShapeData; isSelected: boolean }) {
-  const color = SHAPE_META.entity.color;
+  const color = shape.color || SHAPE_META.entity.color;
   const columns = shape.columns ?? [];
   const tint = withAlpha(color, 0.13);
 
@@ -91,9 +91,9 @@ function EntityCard({ shape, isSelected }: { shape: ShapeData; isSelected: boole
   );
 }
 
-/** A database table as a full table: a soft sage header, then one row per column. */
+/** A database table as a full table: a soft header, then one row per column. */
 function EntityBody({ shape, isSelected }: { shape: ShapeData; isSelected: boolean }) {
-  const color = SHAPE_META.entity.color;
+  const color = shape.color || SHAPE_META.entity.color;
   const columns = shape.columns ?? [];
   const shown = columns.slice(0, ENTITY_MAX_COLUMNS);
   const extra = columns.length - shown.length;
@@ -172,7 +172,8 @@ function EntityBody({ shape, isSelected }: { shape: ShapeData; isSelected: boole
 /** A component card: small flat icon beside a bold title, a monospace subtitle, a short description. */
 function CardBody({ shape, isSelected }: { shape: ShapeData; isSelected: boolean }) {
   const meta = SHAPE_META[shape.type] ?? SHAPE_META.service;
-  const tint = withAlpha(meta.color, 0.13);
+  const accent = shape.color || meta.color;
+  const tint = withAlpha(accent, 0.13);
 
   return (
     <div
@@ -182,12 +183,12 @@ function CardBody({ shape, isSelected }: { shape: ShapeData; isSelected: boolean
       style={{
         backgroundColor: "var(--ghost-card, #ffffff)",
         backgroundImage: `linear-gradient(${tint}, ${tint})`,
-        borderColor: withAlpha(meta.color, 0.28),
+        borderColor: withAlpha(accent, 0.28),
       }}
     >
       <div className="flex items-center gap-2">
         <span className="h-4 w-6 shrink-0">
-          <ShapeGlyph type={shape.type} />
+          <ShapeGlyph type={shape.type} color={accent} />
         </span>
         <p className="min-w-0 truncate text-[15px] font-bold leading-tight text-slate-900">
           {shape.label}

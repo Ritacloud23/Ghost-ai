@@ -39,6 +39,8 @@ export interface Shape {
   /** Custom width and height, set when the user resizes the card. */
   w?: number;
   h?: number;
+  /** Custom accent color (#RRGGBB). Empty or missing means the default for its type. */
+  color?: string;
 }
 
 export interface Edge {
