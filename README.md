@@ -24,9 +24,6 @@ An AI-assisted system design workspace: generate architecture and ER diagrams fr
 
 ![OpenRouter](https://img.shields.io/badge/OpenRouter-6467F2?style=for-the-badge)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
-![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=black)
-![Neon](https://img.shields.io/badge/Neon-00E599?style=for-the-badge&logo=neon&logoColor=black)
 
 ![Status](https://img.shields.io/badge/status-active-success?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
@@ -137,7 +134,7 @@ For hiring managers skimming this page, here is what is built, end to end:
 | AI | ![OpenRouter](https://img.shields.io/badge/-OpenRouter-6467F2) | One API for many models, including free ones |
 | Storage | ![Vercel](https://img.shields.io/badge/-Vercel_Blob-000000?logo=vercel&logoColor=white) | Canvas snapshots |
 | Infrastructure | ![Docker](https://img.shields.io/badge/-Docker-2496ED?logo=docker&logoColor=white) ![Redis](https://img.shields.io/badge/-Redis-DC382D?logo=redis&logoColor=white) | Local Postgres and Redis through Compose |
-| Hosting | ![Vercel](https://img.shields.io/badge/-Vercel-000000?logo=vercel&logoColor=white) ![Render](https://img.shields.io/badge/-Render-46E3B7?logo=render&logoColor=black) ![Neon](https://img.shields.io/badge/-Neon-00E599?logo=neon&logoColor=black) | Free-tier friendly deployment |
+| Hosting | ![railwayl](https://img.shields.io/badge/-railway-000000?logo=railway&logoColor=white) | Free-tier friendly deployment |
 
 ---
 
