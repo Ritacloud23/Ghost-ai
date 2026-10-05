@@ -32,7 +32,7 @@ An AI-assisted system design workspace: generate architecture and ER diagrams fr
 ![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
 ![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)
 
-**[Live demo](https://YOUR-LIVE-URL)** · **[Architecture](./ARCHITECTURE.md)** · **[Report a bug](https://github.com/YOUR-USERNAME/Ghost-ai/issues)**
+**[Live demo](https://frontend-production-44d9.up.railway.app)** ·
 
 </div>
 
