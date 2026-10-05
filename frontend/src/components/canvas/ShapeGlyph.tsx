@@ -6,8 +6,8 @@ const STROKE = "rgba(15, 23, 42, 0.28)";
 const GLOSS = "rgba(255, 255, 255, 0.28)";
 
 /** Draws the outline of a shape inside a 132 x 76 box. No label here. */
-export default function ShapeGlyph({ type }: { type: ShapeType }) {
-  const color = (SHAPE_META[type] ?? SHAPE_META.service).color;
+export default function ShapeGlyph({ type, color: colorOverride }: { type: ShapeType; color?: string }) {
+  const color = colorOverride ?? (SHAPE_META[type] ?? SHAPE_META.service).color;
   const solid = {
     fill: color,
     stroke: STROKE,

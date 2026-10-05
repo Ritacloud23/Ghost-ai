@@ -94,6 +94,7 @@ function EndSymbol({ x, y, out, kind, color }: { x: number; y: number; out: Pt; 
 export default function Edge({ edge, shapes, selected = false, onSelect, onDelete }: EdgeProps) {
   // Hooks must run before any early return.
   const tableView = useCanvasStore((s) => s.tableView);
+  const settings = useCanvasStore((s) => s.settings);
 
   const from = shapes.find((s) => s.id === edge.from);
   const to = shapes.find((s) => s.id === edge.to);
@@ -108,48 +109,60 @@ export default function Edge({ edge, shapes, selected = false, onSelect, onDelet
   const toCx = to.x + tw / 2;
   const stacked = Math.abs(toCx - fromCx) < ((fw + tw) / 2) * 0.9;
 
-  // The route (right angles), where the label sits, and which way each end faces.
-  const route = (() => {
-    if (stacked) {
-      // Above/below each other: leave from the bottom (or top) and enter the other side.
-      const down = to.y >= from.y;
-      const start: Pt = { x: fromCx, y: down ? from.y + fh : from.y };
-      const end: Pt = { x: toCx, y: down ? to.y : to.y + th };
-      const midY = (start.y + end.y) / 2;
-      const straight = Math.abs(start.x - end.x) < 1;
-      return {
-        points: straight
-          ? [start, end]
-          : [start, { x: start.x, y: midY }, { x: end.x, y: midY }, end],
-        mid: { x: (start.x + end.x) / 2, y: midY },
-        outStart: { x: 0, y: down ? 1 : -1 },
-        outEnd: { x: 0, y: down ? -1 : 1 },
-        start,
-        end,
-      };
-    }
+  // Where the line leaves and enters, and which way each end faces.
+  let start: Pt;
+  let end: Pt;
+  let outStart: Pt;
+  let outEnd: Pt;
+
+  if (stacked) {
+    // Above/below each other: leave from the bottom (or top).
+    const down = to.y >= from.y;
+    start = { x: fromCx, y: down ? from.y + fh : from.y };
+    end = { x: toCx, y: down ? to.y : to.y + th };
+    outStart = { x: 0, y: down ? 1 : -1 };
+    outEnd = { x: 0, y: down ? -1 : 1 };
+  } else {
     // Side by side: leave from the right (or left) edge.
     const forward = toCx > fromCx;
-    const start: Pt = { x: forward ? from.x + fw : from.x, y: from.y + fh / 2 };
-    const end: Pt = { x: forward ? to.x : to.x + tw, y: to.y + th / 2 };
-    const midX = (start.x + end.x) / 2;
-    const straight = Math.abs(start.y - end.y) < 1;
-    return {
-      points: straight
-        ? [start, end]
-        : [start, { x: midX, y: start.y }, { x: midX, y: end.y }, end],
-      mid: { x: midX, y: (start.y + end.y) / 2 },
-      outStart: { x: forward ? 1 : -1, y: 0 },
-      outEnd: { x: forward ? -1 : 1, y: 0 },
-      start,
-      end,
+    start = { x: forward ? from.x + fw : from.x, y: from.y + fh / 2 };
+    end = { x: forward ? to.x : to.x + tw, y: to.y + th / 2 };
+    outStart = { x: forward ? 1 : -1, y: 0 };
+    outEnd = { x: forward ? -1 : 1, y: 0 };
+  }
+
+  // The line itself, depending on the chosen style.
+  let d: string;
+  let mid: Pt;
+
+  if (settings.lineStyle === "straight") {
+    d = `M ${start.x} ${start.y} L ${end.x} ${end.y}`;
+    mid = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 };
+  } else if (settings.lineStyle === "curved") {
+    const dist = Math.hypot(end.x - start.x, end.y - start.y);
+    const k = Math.max(40, dist / 2.5);
+    const c1 = { x: start.x + outStart.x * k, y: start.y + outStart.y * k };
+    const c2 = { x: end.x + outEnd.x * k, y: end.y + outEnd.y * k };
+    d = `M ${start.x} ${start.y} C ${c1.x} ${c1.y}, ${c2.x} ${c2.y}, ${end.x} ${end.y}`;
+    mid = {
+      x: 0.125 * start.x + 0.375 * c1.x + 0.375 * c2.x + 0.125 * end.x,
+      y: 0.125 * start.y + 0.375 * c1.y + 0.375 * c2.y + 0.125 * end.y,
     };
-  })();
+  } else {
+    // Right angles with rounded corners.
+    const midX = (start.x + end.x) / 2;
+    const midY = (start.y + end.y) / 2;
+    const aligned = stacked ? Math.abs(start.x - end.x) < 1 : Math.abs(start.y - end.y) < 1;
+    const points: Pt[] = aligned
+      ? [start, end]
+      : stacked
+      ? [start, { x: start.x, y: midY }, { x: end.x, y: midY }, end]
+      : [start, { x: midX, y: start.y }, { x: midX, y: end.y }, end];
+    d = roundedPath(points, 14);
+    mid = { x: midX, y: midY };
+  }
 
-  const d = roundedPath(route.points, 14);
-  const { x: mx, y: my } = route.mid;
-
-  // Full tables with a label like "1:N" get crow's-foot ends. Cards get a plain line with an arrowhead.
+  // Full tables with a label like "1:N" get crow's-foot ends. Everything else gets an arrowhead.
   const cardinality =
     tableView === "columns" && from.type === "entity" && to.type === "entity"
       ? parseCardinality(edge.label)
@@ -160,14 +173,16 @@ export default function Edge({ edge, shapes, selected = false, onSelect, onDelet
   const displayLabel = CARDINALITY_RE.test(rawLabel.trim())
     ? rawLabel.trim().toUpperCase()
     : rawLabel.toLowerCase();
+  const showLabel = Boolean(displayLabel) && (settings.showLabels || selected);
 
+  const showArrow = settings.arrowheads && !cardinality;
   const markerId = `arrow-${edge.id.replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const lineColor = selected ? "#3B82F6" : "#4B5563";
   const labelWidth = displayLabel ? Math.max(30, displayLabel.length * 6.6 + 18) : 0;
 
   return (
     <g>
-      {!cardinality && (
+      {showArrow && (
         <defs>
           <marker
             id={markerId}
@@ -191,26 +206,14 @@ export default function Edge({ edge, shapes, selected = false, onSelect, onDelet
         strokeWidth={selected ? 2.5 : 2}
         strokeLinecap="round"
         strokeLinejoin="round"
-        markerEnd={cardinality ? undefined : `url(#${markerId})`}
+        markerEnd={showArrow ? `url(#${markerId})` : undefined}
       />
 
       {/* Crow's-foot ends */}
       {cardinality && (
         <>
-          <EndSymbol
-            x={route.start.x}
-            y={route.start.y}
-            out={route.outStart}
-            kind={cardinality.from}
-            color={lineColor}
-          />
-          <EndSymbol
-            x={route.end.x}
-            y={route.end.y}
-            out={route.outEnd}
-            kind={cardinality.to}
-            color={lineColor}
-          />
+          <EndSymbol x={start.x} y={start.y} out={outStart} kind={cardinality.from} color={lineColor} />
+          <EndSymbol x={end.x} y={end.y} out={outEnd} kind={cardinality.to} color={lineColor} />
         </>
       )}
 
@@ -228,9 +231,9 @@ export default function Edge({ edge, shapes, selected = false, onSelect, onDelet
       />
 
       {/* Label (also shown while selected, above the delete button) */}
-      {displayLabel && (
+      {showLabel && (
         <g
-          transform={`translate(${mx} ${selected ? my - 24 : my})`}
+          transform={`translate(${mid.x} ${selected ? mid.y - 24 : mid.y})`}
           style={{ pointerEvents: "none" }}
         >
           <rect
@@ -256,7 +259,7 @@ export default function Edge({ edge, shapes, selected = false, onSelect, onDelet
       {/* Delete button on the selected line */}
       {selected && onDelete && (
         <g
-          transform={`translate(${mx} ${my})`}
+          transform={`translate(${mid.x} ${mid.y})`}
           style={{ pointerEvents: "all", cursor: "pointer" }}
           onClick={(e) => {
             e.stopPropagation();

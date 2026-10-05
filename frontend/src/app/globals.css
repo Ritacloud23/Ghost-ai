@@ -117,3 +117,6 @@ html.dark body {
 .dark .ghost-edge-label-bg-selected { stroke: #3b82f6; }
 .dark .ghost-edge-label-text { fill: #cbd5e1; }
 .dark .ghost-edge-delete-bg { fill: #1e293b; }
+
+:root { --ghost-grid: #e5e7eb; }
+html.dark { --ghost-grid: #1f2937; }
